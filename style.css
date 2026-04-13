@@ -1,4 +1,4 @@
-  :root {
+:root {
         --color-bg: #0d0d0d;
         --color-white: #ffffff;
         --color-off-white: #f8f8f8;
@@ -167,8 +167,9 @@
         border: 1px solid rgba(255,255,255,0.1);
         overflow: hidden;
       }
+      /* ✅ MODIFIÉ : object-position: top center pour cadrer le visage */
       .about-image-placeholder img {
-        width: 100%; height: 100%; object-fit: cover;
+        width: 100%; height: 100%; object-fit: cover; object-position: top center;
       }
       .about-content h2 {
         font-family: 'Cormorant Garamond', serif;
@@ -410,9 +411,10 @@
           grid-template-columns: 1fr;
           gap: 50px;
         }
+        /* ✅ MODIFIÉ : 4/3 au lieu de 16/9 pour mieux montrer la photo */
         .about-image-placeholder {
-          aspect-ratio: 16/9;
-          max-height: 500px;
+          aspect-ratio: 4/3;
+          max-height: 550px;
         }
  
         .contact-content { grid-template-columns: 1fr; gap: 50px; }
@@ -453,6 +455,12 @@
  
         .hero-title { font-size: clamp(44px, 14vw, 60px); }
         .hero-description { font-size: 13px; padding: 0 10px; }
+ 
+        /* ✅ MODIFIÉ : retour en 3/4 portrait sur mobile */
+        .about-image-placeholder {
+          aspect-ratio: 3/4;
+          max-height: 420px;
+        }
  
         .about-stats { grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .stat-label { font-size: 9px; letter-spacing: 1px; }
