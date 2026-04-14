@@ -1,6 +1,9 @@
--- ── Colle ce SQL dans Supabase : Table Editor > New Query ──
+-- =====================================================
+-- TABLE DES MESSAGES - VERSION SÉCURISÉE
+-- =====================================================
 
-CREATE TABLE messages (
+-- Création de la table
+CREATE TABLE IF NOT EXISTS messages (
     id         BIGSERIAL PRIMARY KEY,
     nom        TEXT NOT NULL,
     email      TEXT NOT NULL,
@@ -10,9 +13,13 @@ CREATE TABLE messages (
     date_envoi TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Activation de la sécurité niveau ligne
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Insert public" ON messages FOR INSERT WITH CHECK (true);
-CREATE POLICY "Select admin"  ON messages FOR SELECT USING (true);
-CREATE POLICY "Update admin"  ON messages FOR UPDATE USING (true);
-CREATE POLICY "Delete admin"  ON messages FOR DELETE USING (true);
+-- UNIQUEMENT cette politique - permet aux visiteurs d'envoyer des messages
+CREATE POLICY "allow_insert_from_anyone" ON messages 
+    FOR INSERT WITH CHECK (true);
+
+-- PAS de politique SELECT/UPDATE/DELETE - vos données sont PROTÉGÉES
+-- Pour consulter les messages, utilisez le Table Editor de Supabase
+-- (vous êtes automatiquement authentifié en tant qu'admin)

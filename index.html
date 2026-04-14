@@ -7,7 +7,10 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="cursor"></div>
@@ -99,34 +102,64 @@
       </div>
       <div class="services-grid">
         <div class="service-card">
-          <div class="service-icon"><img src="./Assets/icone/couple.png" alt="" /></div>
+          <div class="service-icon">
+            <img src="./Assets/icone/couple.png" alt="" />
+          </div>
           <h3 class="service-title">Mariages</h3>
-          <p class="service-description">Immortalisez le plus beau jour de votre vie avec des photos authentiques et émouvantes qui racontent votre histoire d'amour.</p>
+          <p class="service-description">
+            Immortalisez le plus beau jour de votre vie avec des photos
+            authentiques et émouvantes qui racontent votre histoire d'amour.
+          </p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><img src="./Assets/icone/portrait.png" alt="" /></div>
+          <div class="service-icon">
+            <img src="./Assets/icone/portrait.png" alt="" />
+          </div>
           <h3 class="service-title">Portraits</h3>
-          <p class="service-description">Des portraits professionnels qui capturent votre personnalité unique et révèlent votre essence avec élégance.</p>
+          <p class="service-description">
+            Des portraits professionnels qui capturent votre personnalité unique
+            et révèlent votre essence avec élégance.
+          </p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><img src="./Assets/icone/danse.png" alt="" /></div>
+          <div class="service-icon">
+            <img src="./Assets/icone/danse.png" alt="" />
+          </div>
           <h3 class="service-title">Événements</h3>
-          <p class="service-description">Couverture complète de vos événements d'entreprise, soirées privées et célébrations avec discrétion et professionnalisme.</p>
+          <p class="service-description">
+            Couverture complète de vos événements d'entreprise, soirées privées
+            et célébrations avec discrétion et professionnalisme.
+          </p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><img src="./Assets/icone/Famille.png" alt="" /></div>
+          <div class="service-icon">
+            <img src="./Assets/icone/Famille.png" alt="" />
+          </div>
           <h3 class="service-title">Famille</h3>
-          <p class="service-description">Séances photo familiales chaleureuses qui capturent les moments de complicité et l'amour qui vous unit.</p>
+          <p class="service-description">
+            Séances photo familiales chaleureuses qui capturent les moments de
+            complicité et l'amour qui vous unit.
+          </p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><img src="./Assets/icone/arts.png" alt="" /></div>
+          <div class="service-icon">
+            <img src="./Assets/icone/arts.png" alt="" />
+          </div>
           <h3 class="service-title">Mode & Art</h3>
-          <p class="service-description">Photographie de mode créative et projets artistiques qui repoussent les limites de l'expression visuelle.</p>
+          <p class="service-description">
+            Photographie de mode créative et projets artistiques qui repoussent
+            les limites de l'expression visuelle.
+          </p>
         </div>
         <div class="service-card">
-          <div class="service-icon"><img src="./Assets/icone/corporate.png" alt="" /></div>
+          <div class="service-icon">
+            <img src="./Assets/icone/corporate.png" alt="" />
+          </div>
           <h3 class="service-title">Corporate</h3>
-          <p class="service-description">Photos corporate professionnelles pour valoriser votre image de marque et vos équipes avec impact.</p>
+          <p class="service-description">
+            Photos corporate professionnelles pour valoriser votre image de
+            marque et vos équipes avec impact.
+          </p>
         </div>
       </div>
     </section>
@@ -208,7 +241,10 @@
       <div class="contact-content">
         <div class="contact-info">
           <h2>Parlons de<br />Votre Projet</h2>
-          <p class="contact-text">Je serais ravi de discuter de votre projet et de créer ensemble des images qui dépasseront vos attentes.</p>
+          <p class="contact-text">
+            Je serais ravi de discuter de votre projet et de créer ensemble des
+            images qui dépasseront vos attentes.
+          </p>
           <div class="contact-details">
             <a href="mailto:antonilatevi@gmail.com" class="contact-item">
               <span class="contact-icon">📧</span>
@@ -241,13 +277,19 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="service">Service</label>
-            <input type="text" id="service" class="form-input" placeholder="Mariage, Portrait, Événement..." />
+            <input
+              type="text"
+              id="service"
+              class="form-input"
+              placeholder="Mariage, Portrait, Événement..."
+            />
           </div>
           <div class="form-group">
             <label class="form-label" for="message">Message</label>
             <textarea id="message" class="form-textarea" required></textarea>
           </div>
           <button type="submit" class="form-submit">Envoyer</button>
+          <div id="formStatus" class="form-status" style="display: none"></div>
         </form>
       </div>
     </section>
@@ -257,9 +299,12 @@
     </footer>
 
     <script>
-      // ── CONFIG SUPABASE ── (remplace par tes vraies valeurs)
-      const SUPABASE_URL = 'https://XXXXXXXXXXXXXXXX.supabase.co';
-      const SUPABASE_KEY = 'eyJxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+      // ============================================
+      // CONFIGURATION SUPABASE - À MODIFIER ICI
+      // ============================================
+      const SUPABASE_URL = "https://VOTRE_PROJET.supabase.co"; // ← Remplacez
+      const SUPABASE_ANON_KEY = "VOTRE_CLE_ANON_PUBLIQUE"; // ← Remplacez
+      // ============================================
 
       // Curseur personnalisé
       const cursor = document.querySelector(".cursor");
@@ -287,7 +332,9 @@
       hamburger.addEventListener("click", () => {
         hamburger.classList.toggle("open");
         mobileMenu.classList.toggle("open");
-        document.body.style.overflow = mobileMenu.classList.contains("open") ? "hidden" : "";
+        document.body.style.overflow = mobileMenu.classList.contains("open")
+          ? "hidden"
+          : "";
       });
 
       document.querySelectorAll(".mobile-link").forEach((link) => {
@@ -303,7 +350,8 @@
         anchor.addEventListener("click", function (e) {
           e.preventDefault();
           const target = document.querySelector(this.getAttribute("href"));
-          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+          if (target)
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       });
 
@@ -316,14 +364,20 @@
           btn.classList.add("active");
           const filter = btn.getAttribute("data-filter");
           galleryItems.forEach((item) => {
-            const match = filter === "all" || item.getAttribute("data-category") === filter;
+            const match =
+              filter === "all" || item.getAttribute("data-category") === filter;
             if (match) {
               item.style.display = "block";
-              setTimeout(() => { item.style.opacity = "1"; item.style.transform = "scale(1)"; }, 10);
+              setTimeout(() => {
+                item.style.opacity = "1";
+                item.style.transform = "scale(1)";
+              }, 10);
             } else {
               item.style.opacity = "0";
               item.style.transform = "scale(0.8)";
-              setTimeout(() => { item.style.display = "none"; }, 300);
+              setTimeout(() => {
+                item.style.display = "none";
+              }, 300);
             }
           });
         });
@@ -339,61 +393,93 @@
             }
           });
         },
-        { threshold: 0.1, rootMargin: "0px 0px -80px 0px" }
+        { threshold: 0.1, rootMargin: "0px 0px -80px 0px" },
       );
-      document.querySelectorAll(".gallery-item, .service-card, .stat-item").forEach((el) => {
-        el.style.opacity = "0";
-        el.style.transform = "translateY(30px)";
-        el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-        observer.observe(el);
-      });
+      document
+        .querySelectorAll(".gallery-item, .service-card, .stat-item")
+        .forEach((el) => {
+          el.style.opacity = "0";
+          el.style.transform = "translateY(30px)";
+          el.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+          observer.observe(el);
+        });
 
-      // ── Formulaire → Supabase ──
-      document.getElementById("contactForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const btn = e.target.querySelector(".form-submit");
-        btn.textContent = "Envoi en cours...";
-        btn.disabled = true;
+      // ============================================
+      // FORMULAIRE VERS SUPABASE (SÉCURISÉ)
+      // ============================================
+      const formStatus = document.getElementById("formStatus");
 
-        const payload = {
-          nom:     document.getElementById("name").value,
-          email:   document.getElementById("email").value,
-          service: document.getElementById("service").value,
-          message: document.getElementById("message").value,
-        };
+      function showStatus(message, isError = true) {
+        formStatus.textContent = message;
+        formStatus.style.display = "block";
+        formStatus.style.backgroundColor = isError ? "#f44336" : "#2ecc71";
+        formStatus.style.color = "white";
+        formStatus.style.padding = "12px";
+        formStatus.style.borderRadius = "5px";
+        formStatus.style.marginTop = "15px";
+        formStatus.style.textAlign = "center";
+        setTimeout(() => {
+          formStatus.style.display = "none";
+        }, 5000);
+      }
 
-        try {
-          const res = await fetch(SUPABASE_URL + "/rest/v1/messages", {
-            method: "POST",
-            headers: {
-              "apikey":        SUPABASE_KEY,
-              "Authorization": "Bearer " + SUPABASE_KEY,
-              "Content-Type":  "application/json",
-              "Prefer":        "return=minimal"
-            },
-            body: JSON.stringify(payload)
-          });
+      document
+        .getElementById("contactForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = e.target.querySelector(".form-submit");
+          const originalText = btn.textContent;
+          btn.textContent = "Envoi en cours...";
+          btn.disabled = true;
 
-          if (res.ok || res.status === 201) {
-            btn.textContent = "Message envoyé !";
-            btn.style.background = "#2ecc71";
-            btn.style.color = "#fff";
-            e.target.reset();
-            setTimeout(() => {
-              btn.textContent = "Envoyer";
-              btn.style.background = "";
-              btn.style.color = "";
-              btn.disabled = false;
-            }, 3000);
-          } else {
-            throw new Error("Erreur serveur");
+          const payload = {
+            nom: document.getElementById("name").value.trim(),
+            email: document.getElementById("email").value.trim(),
+            service: document.getElementById("service").value.trim() || null,
+            message: document.getElementById("message").value.trim(),
+          };
+
+          // Validation simple
+          if (!payload.nom || !payload.email || !payload.message) {
+            showStatus("Veuillez remplir tous les champs obligatoires.");
+            btn.textContent = originalText;
+            btn.disabled = false;
+            return;
           }
-        } catch (err) {
-          alert("Erreur lors de l'envoi. Réessaye.");
-          btn.textContent = "Envoyer";
-          btn.disabled = false;
-        }
-      });
+
+          try {
+            const res = await fetch(SUPABASE_URL + "/rest/v1/messages", {
+              method: "POST",
+              headers: {
+                apikey: SUPABASE_ANON_KEY,
+                Authorization: "Bearer " + SUPABASE_ANON_KEY,
+                "Content-Type": "application/json",
+                Prefer: "return=minimal",
+              },
+              body: JSON.stringify(payload),
+            });
+
+            if (res.ok || res.status === 201) {
+              showStatus("✓ Message envoyé avec succès !", false);
+              btn.textContent = "Message envoyé !";
+              btn.style.background = "#2ecc71";
+              btn.style.color = "#fff";
+              e.target.reset();
+              setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = "";
+                btn.style.color = "";
+                btn.disabled = false;
+              }, 3000);
+            } else {
+              throw new Error("Erreur serveur");
+            }
+          } catch (err) {
+            showStatus("Erreur lors de l'envoi. Veuillez réessayer.");
+            btn.textContent = originalText;
+            btn.disabled = false;
+          }
+        });
     </script>
   </body>
 </html>
