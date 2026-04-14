@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Antoni Latevi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0d0d; --dark: #1a1a1a;
+      --border: rgba(255,255,255,0.08);
+      --gray: #8a8a8a; --white: #ffffff;
+      --accent: #c9a961; --danger: #e74c3c; --success: #2ecc71;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
+
+    /* LOGIN */
+    #login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-box { width: 100%; max-width: 420px; padding: 60px 50px; border: 1px solid var(--border); background: var(--dark); }
+    .login-logo { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; letter-spacing: 3px; text-align: center; margin-bottom: 8px; }
+    .login-subtitle { font-size: 11px; color: var(--accent); text-align: center; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 50px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); margin-bottom: 8px; }
+    .form-input { width: 100%; padding: 14px 18px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--white); font-size: 14px; font-family: 'Montserrat', sans-serif; transition: border-color 0.3s; }
+    .form-input:focus { outline: none; border-color: var(--accent); }
+    .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: var(--bg); border: none; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; font-family: 'Montserrat', sans-serif; margin-top: 10px; transition: background 0.3s; }
+    .btn-primary:hover { background: var(--white); }
+    .erreur { background: rgba(220,53,69,0.15); border: 1px solid rgba(220,53,69,0.3); color: #ff6b6b; padding: 12px 18px; font-size: 13px; margin-bottom: 20px; text-align: center; display: none; }
+
+    /* DASHBOARD */
+    #dashboard-screen { display: none; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 240px; height: 100vh; background: var(--dark); border-right: 1px solid var(--border); padding: 40px 30px; display: flex; flex-direction: column; }
+    .sidebar-logo { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 300; letter-spacing: 2px; margin-bottom: 6px; }
+    .sidebar-sub { font-size: 10px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 50px; }
+    .nav-item { display: block; padding: 12px 15px; color: var(--gray); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-radius: 4px; transition: all 0.2s; border: none; background: rgba(255,255,255,0.05); color: var(--white); width: 100%; text-align: left; font-family: 'Montserrat', sans-serif; margin-bottom: 5px; cursor: default; }
+    .nav-item .badge { display: inline-block; background: var(--accent); color: var(--bg); font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; margin-left: 8px; }
+    .btn-logout { padding: 12px 15px; color: var(--danger); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; border-radius: 4px; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-family: 'Montserrat', sans-serif; }
+    .btn-logout:hover { background: rgba(231,76,60,0.1); }
+    .main { margin-left: 240px; padding: 50px; min-height: 100vh; }
+    .page-title { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 300; margin-bottom: 10px; }
+    .page-subtitle { font-size: 13px; color: var(--gray); margin-bottom: 40px; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+    .stat-card { background: var(--dark); border: 1px solid var(--border); padding: 25px 30px; }
+    .stat-card .number { font-family: 'Cormorant Garamond', serif; font-size: 48px; font-weight: 300; color: var(--accent); line-height: 1; }
+    .stat-card .label { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: 2px; margin-top: 8px; }
+
+    /* Filtres */
+    .filtres { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+    .filtre-btn { padding: 8px 20px; background: none; border: 1px solid var(--border); color: var(--gray); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; font-family: 'Montserrat', sans-serif; transition: all 0.2s; }
+    .filtre-btn:hover, .filtre-btn.active { border-color: var(--accent); color: var(--accent); }
+
+    /* Table */
+    .table-wrapper { overflow-x: auto; }
+    .messages-table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    .messages-table th { text-align: left; padding: 12px 20px; font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--gray); border-bottom: 1px solid var(--border); }
+    .messages-table td { padding: 18px 20px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+    .messages-table tr.non-lu td { background: rgba(201,169,97,0.04); }
+    .badge-service { display: inline-block; padding: 3px 10px; background: rgba(201,169,97,0.15); border: 1px solid rgba(201,169,97,0.3); color: var(--accent); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; }
+    .badge-non-lu { display: inline-block; width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+    .msg-text { max-width: 250px; color: var(--gray); line-height: 1.6; font-size: 12px; }
+    .date { color: var(--gray); font-size: 12px; white-space: nowrap; }
+    .actions { display: flex; gap: 8px; }
+    .btn-action { padding: 6px 14px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; border: 1px solid var(--border); background: none; color: var(--gray); font-family: 'Montserrat', sans-serif; transition: all 0.2s; white-space: nowrap; }
+    .btn-action:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-action.danger:hover { border-color: var(--danger); color: var(--danger); }
+    .empty { text-align: center; padding: 80px 20px; color: var(--gray); font-size: 14px; }
+    .loading { text-align: center; padding: 60px; color: var(--gray); font-size: 13px; letter-spacing: 2px; }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 30px 20px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 500px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .login-box { padding: 40px 25px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">ANTONI LATEVI</div>
+    <div class="login-subtitle">Espace Admin</div>
+    <div class="erreur" id="login-erreur">Identifiants incorrects.</div>
+    <div class="form-group">
+      <label class="form-label">Identifiant</label>
+      <input type="text" id="login-user" class="form-input" autofocus />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mot de passe</label>
+      <input type="password" id="login-pass" class="form-input" />
+    </div>
+    <button class="btn-primary" onclick="seConnecter()">Se connecter</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard-screen">
+  <aside class="sidebar">
+    <div class="sidebar-logo">ANTONI LATEVI</div>
+    <div class="sidebar-sub">Admin</div>
+    <nav style="flex:1">
+      <div class="nav-item">
+        Messages <span class="badge" id="badge-non-lus" style="display:none"></span>
+      </div>
+    </nav>
+    <button class="btn-logout" onclick="seDeconnecter()">Déconnexion</button>
+  </aside>
+
+  <main class="main">
+    <h1 class="page-title">Messages</h1>
+    <p class="page-subtitle">Tous les messages reçus via le formulaire de contact</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="number" id="stat-total">—</div>
+        <div class="label">Total messages</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="stat-non-lus">—</div>
+        <div class="label">Non lus</div>
+      </div>
+      <div class="stat-card">
+        <div class="number" id="stat-lus">—</div>
+        <div class="label">Lus</div>
+      </div>
+    </div>
+
+    <div class="filtres">
+      <button class="filtre-btn active" onclick="filtrer('tous', this)">Tous</button>
+      <button class="filtre-btn" onclick="filtrer('non_lus', this)">Non lus</button>
+      <button class="filtre-btn" onclick="filtrer('lus', this)">Lus</button>
+    </div>
+
+    <div id="messages-container">
+      <div class="loading">Chargement...</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ── CONFIG ── (remplace par tes vraies valeurs)
+  const SUPABASE_URL = 'https://XXXXXXXXXXXXXXXX.supabase.co';
+  const SUPABASE_KEY = 'eyJxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+  const ADMIN_USER   = 'admin';
+  const ADMIN_PASS   = 'admin123'; // ← change ce mot de passe !
+
+  let filtreCourant = 'tous';
+  let tousMessages  = [];
+
+  // Connexion
+  function seConnecter() {
+    const user = document.getElementById('login-user').value;
+    const pass = document.getElementById('login-pass').value;
+    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      sessionStorage.setItem('admin', 'true');
+      document.getElementById('login-screen').style.display    = 'none';
+      document.getElementById('dashboard-screen').style.display = 'block';
+      chargerMessages();
+    } else {
+      document.getElementById('login-erreur').style.display = 'block';
+    }
+  }
+  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') seConnecter(); });
+  document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') seConnecter(); });
+
+  function seDeconnecter() {
+    sessionStorage.removeItem('admin');
+    document.getElementById('login-screen').style.display    = 'flex';
+    document.getElementById('dashboard-screen').style.display = 'none';
+  }
+
+  // Session persistante
+  if (sessionStorage.getItem('admin')) {
+    document.getElementById('login-screen').style.display    = 'none';
+    document.getElementById('dashboard-screen').style.display = 'block';
+    chargerMessages();
+  }
+
+  // Supabase
+  async function supabaseFetch(path, options = {}) {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      ...options,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+        ...(options.headers || {})
+      }
+    });
+    if (options.method === 'DELETE' || options.headers?.Prefer === 'return=minimal') return {};
+    return res.json();
+  }
+
+  async function chargerMessages() {
+    document.getElementById('messages-container').innerHTML = '<div class="loading">Chargement...</div>';
+    const data = await supabaseFetch('messages?order=date_envoi.desc');
+    tousMessages = Array.isArray(data) ? data : [];
+    mettreAJourStats();
+    afficherMessages(filtreCourant);
+  }
+
+  function mettreAJourStats() {
+    const total  = tousMessages.length;
+    const nonLus = tousMessages.filter(m => !m.lu).length;
+    document.getElementById('stat-total').textContent   = total;
+    document.getElementById('stat-non-lus').textContent = nonLus;
+    document.getElementById('stat-lus').textContent     = total - nonLus;
+    const badge = document.getElementById('badge-non-lus');
+    if (nonLus > 0) { badge.textContent = nonLus; badge.style.display = 'inline-block'; }
+    else { badge.style.display = 'none'; }
+  }
+
+  function filtrer(type, btn) {
+    filtreCourant = type;
+    document.querySelectorAll('.filtre-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    afficherMessages(type);
+  }
+
+  function afficherMessages(type) {
+    let msgs = tousMessages;
+    if (type === 'non_lus') msgs = tousMessages.filter(m => !m.lu);
+    if (type === 'lus')     msgs = tousMessages.filter(m => m.lu);
+    const container = document.getElementById('messages-container');
+    if (msgs.length === 0) {
+      container.innerHTML = '<div class="empty">Aucun message pour le moment.</div>';
+      return;
+    }
+    container.innerHTML = `
+      <div class="table-wrapper">
+        <table class="messages-table">
+          <thead><tr><th>Nom</th><th>Email</th><th>Service</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody>
+            ${msgs.map(m => `
+            <tr id="row-${m.id}" class="${!m.lu ? 'non-lu' : ''}">
+              <td>${!m.lu ? '<span class="badge-non-lu"></span>' : ''}${esc(m.nom)}</td>
+              <td><a href="mailto:${esc(m.email)}" style="color:var(--accent);text-decoration:none">${esc(m.email)}</a></td>
+              <td>${m.service ? `<span class="badge-service">${esc(m.service)}</span>` : '<span style="color:var(--gray)">—</span>'}</td>
+              <td class="msg-text">${esc(m.message).replace(/\n/g,'<br>')}</td>
+              <td class="date">${fmtDate(m.date_envoi)}</td>
+              <td><div class="actions">
+                ${!m.lu ? `<button class="btn-action" onclick="marquerLu(${m.id})">Lu</button>` : ''}
+                <button class="btn-action danger" onclick="supprimer(${m.id})">Supprimer</button>
+              </div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  }
+
+  async function marquerLu(id) {
+    await supabaseFetch('messages?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ lu: true }) });
+    const msg = tousMessages.find(m => m.id === id);
+    if (msg) msg.lu = true;
+    mettreAJourStats();
+    afficherMessages(filtreCourant);
+  }
+
+  async function supprimer(id) {
+    if (!confirm('Supprimer ce message définitivement ?')) return;
+    await supabaseFetch('messages?id=eq.' + id, { method: 'DELETE', headers: { Prefer: 'return=minimal' } });
+    tousMessages = tousMessages.filter(m => m.id !== id);
+    mettreAJourStats();
+    afficherMessages(filtreCourant);
+  }
+
+  function esc(str) { return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtDate(str) {
+    const d = new Date(str);
+    return d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+  }
+</script>
+</body>
+</html>
