@@ -453,12 +453,21 @@
     </div>
 
     <script>
+      // ============================================
+      // CONFIGURATION SUPABASE
+      // ============================================
       const SUPABASE_URL = "https://gxrbnwnrkzgbxzrtdakb.supabase.co";
       const SUPABASE_KEY = "sb_publishable_fEuUhamvjACsN9lSew6N5g_8NIsDMtr";
       const ADMIN_USER = "admin";
       const ADMIN_PASS = "admin123";
+
       let filtreCourant = "tous";
       let tousMessages = [];
+
+      // Fonction pour afficher les erreurs dans la console
+      function logError(context, error) {
+        console.error(`[${context}]`, error);
+      }
 
       // Connexion
       function seConnecter() {
@@ -471,8 +480,12 @@
           chargerMessages();
         } else {
           document.getElementById("login-erreur").style.display = "block";
+          setTimeout(() => {
+            document.getElementById("login-erreur").style.display = "none";
+          }, 3000);
         }
       }
+
       document.getElementById("login-pass").addEventListener("keydown", (e) => {
         if (e.key === "Enter") seConnecter();
       });
@@ -493,47 +506,101 @@
         chargerMessages();
       }
 
-      // Supabase
+      // ============================================
+      // REQUÊTES SUPABASE (VERSION CORRIGÉE POUR CORS)
+      // ============================================
       async function supabaseFetch(path, options = {}) {
-        const res = await fetch(SUPABASE_URL + "/rest/v1/" + path, {
-          ...options,
+        const url = SUPABASE_URL + "/rest/v1/" + path;
+
+        const fetchOptions = {
+          method: options.method || "GET",
           headers: {
             apikey: SUPABASE_KEY,
             Authorization: "Bearer " + SUPABASE_KEY,
             "Content-Type": "application/json",
-            Prefer: "return=representation",
-            ...(options.headers || {}),
           },
-        });
-        if (
-          options.method === "DELETE" ||
-          options.headers?.Prefer === "return=minimal"
-        )
-          return {};
-        return res.json();
+        };
+
+        if (options.body) {
+          fetchOptions.body = JSON.stringify(options.body);
+        }
+
+        if (options.method === "PATCH" || options.method === "DELETE") {
+          fetchOptions.headers["Prefer"] = "return=minimal";
+        }
+
+        try {
+          const response = await fetch(url, fetchOptions);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            logError(`HTTP ${response.status}`, errorText);
+            throw new Error(`Erreur ${response.status}: ${errorText}`);
+          }
+
+          if (options.method === "DELETE") return { success: true };
+          if (options.method === "PATCH") return { success: true };
+
+          const data = await response.json();
+          return data;
+        } catch (err) {
+          logError("Fetch error", err);
+
+          // Afficher une erreur visible dans l'interface
+          const container = document.getElementById("messages-container");
+          if (container && err.message.includes("Failed to fetch")) {
+            container.innerHTML = `<div class="empty" style="color: #ff6b6b;">
+              ⚠️ Erreur de connexion à Supabase.<br>
+              Vérifiez que les CORS sont configurés dans Supabase :<br>
+              Settings → API → Allowed Origins → Ajoutez : ${window.location.origin}
+            </div>`;
+          }
+          return [];
+        }
       }
 
       async function chargerMessages() {
-        document.getElementById("messages-container").innerHTML =
-          '<div class="loading">Chargement...</div>';
-        const data = await supabaseFetch("messages?order=date_envoi.desc");
-        tousMessages = Array.isArray(data) ? data : [];
-        mettreAJourStats();
-        afficherMessages(filtreCourant);
+        const container = document.getElementById("messages-container");
+        if (container) {
+          container.innerHTML =
+            '<div class="loading">Chargement des messages...</div>';
+        }
+
+        try {
+          const data = await supabaseFetch("messages?order=date_envoi.desc");
+          tousMessages = Array.isArray(data) ? data : [];
+          mettreAJourStats();
+          afficherMessages(filtreCourant);
+        } catch (err) {
+          logError("chargerMessages", err);
+          if (container) {
+            container.innerHTML = `<div class="empty" style="color: #ff6b6b;">
+              ❌ Impossible de charger les messages.<br>
+              Vérifiez votre connexion ou réessayez plus tard.
+            </div>`;
+          }
+        }
       }
 
       function mettreAJourStats() {
         const total = tousMessages.length;
         const nonLus = tousMessages.filter((m) => !m.lu).length;
-        document.getElementById("stat-total").textContent = total;
-        document.getElementById("stat-non-lus").textContent = nonLus;
-        document.getElementById("stat-lus").textContent = total - nonLus;
+        const statTotal = document.getElementById("stat-total");
+        const statNonLus = document.getElementById("stat-non-lus");
+        const statLus = document.getElementById("stat-lus");
         const badge = document.getElementById("badge-non-lus");
-        if (nonLus > 0) {
-          badge.textContent = nonLus;
-          badge.style.display = "inline-block";
-        } else {
-          badge.style.display = "none";
+
+        if (statTotal) statTotal.textContent = total;
+        if (statNonLus) statNonLus.textContent = nonLus;
+        if (statLus) statLus.textContent = total - nonLus;
+
+        if (badge) {
+          if (nonLus > 0) {
+            badge.textContent = nonLus;
+            badge.style.display = "inline-block";
+          } else {
+            badge.style.display = "none";
+          }
         }
       }
 
@@ -542,7 +609,7 @@
         document
           .querySelectorAll(".filtre-btn")
           .forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
+        if (btn) btn.classList.add("active");
         afficherMessages(type);
       }
 
@@ -550,58 +617,82 @@
         let msgs = tousMessages;
         if (type === "non_lus") msgs = tousMessages.filter((m) => !m.lu);
         if (type === "lus") msgs = tousMessages.filter((m) => m.lu);
+
         const container = document.getElementById("messages-container");
+        if (!container) return;
+
         if (msgs.length === 0) {
           container.innerHTML =
             '<div class="empty">Aucun message pour le moment.</div>';
           return;
         }
+
         container.innerHTML = `
-      <div class="table-wrapper">
-        <table class="messages-table">
-          <thead><tr><th>Nom</th><th>Email</th><th>Service</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
-          <tbody>
-            ${msgs
-              .map(
-                (m) => `
-            <tr id="row-${m.id}" class="${!m.lu ? "non-lu" : ""}">
-              <td>${!m.lu ? '<span class="badge-non-lu"></span>' : ""}${esc(m.nom)}</td>
-              <td><a href="mailto:${esc(m.email)}" style="color:var(--accent);text-decoration:none">${esc(m.email)}</a></td>
-              <td>${m.service ? `<span class="badge-service">${esc(m.service)}</span>` : '<span style="color:var(--gray)">—</span>'}</td>
-              <td class="msg-text">${esc(m.message).replace(/\n/g, "<br>")}</td>
-              <td class="date">${fmtDate(m.date_envoi)}</td>
-              <td><div class="actions">
-                ${!m.lu ? `<button class="btn-action" onclick="marquerLu(${m.id})">Lu</button>` : ""}
-                <button class="btn-action danger" onclick="supprimer(${m.id})">Supprimer</button>
-              </div></td>
-            </tr>`,
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>`;
+          <div class="table-wrapper">
+            <table class="messages-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Email</th>
+                  <th>Service</th>
+                  <th>Message</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${msgs
+                  .map(
+                    (m) => `
+                  <tr id="row-${m.id}" class="${!m.lu ? "non-lu" : ""}">
+                    <td>${!m.lu ? '<span class="badge-non-lu"></span>' : ""}${esc(m.nom)}</td>
+                    <td><a href="mailto:${esc(m.email)}" style="color:var(--accent);text-decoration:none">${esc(m.email)}</a></td>
+                    <td>${m.service ? `<span class="badge-service">${esc(m.service)}</span>` : '<span style="color:var(--gray)">—</span>'}</td>
+                    <td class="msg-text">${esc(m.message).replace(/\n/g, "<br>")}</td>
+                    <td class="date">${fmtDate(m.date_envoi)}</td>
+                    <td><div class="actions">
+                      ${!m.lu ? `<button class="btn-action" onclick="marquerLu(${m.id})">Lu</button>` : ""}
+                      <button class="btn-action danger" onclick="supprimer(${m.id})">Supprimer</button>
+                    </div></td>
+                  </tr>
+                `,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+        `;
       }
 
       async function marquerLu(id) {
-        await supabaseFetch("messages?id=eq." + id, {
-          method: "PATCH",
-          body: JSON.stringify({ lu: true }),
-        });
-        const msg = tousMessages.find((m) => m.id === id);
-        if (msg) msg.lu = true;
-        mettreAJourStats();
-        afficherMessages(filtreCourant);
+        try {
+          await supabaseFetch("messages?id=eq." + id, {
+            method: "PATCH",
+            body: JSON.stringify({ lu: true }),
+          });
+          const msg = tousMessages.find((m) => m.id === id);
+          if (msg) msg.lu = true;
+          mettreAJourStats();
+          afficherMessages(filtreCourant);
+        } catch (err) {
+          logError("marquerLu", err);
+          alert("Erreur lors du marquage du message");
+        }
       }
 
       async function supprimer(id) {
         if (!confirm("Supprimer ce message définitivement ?")) return;
-        await supabaseFetch("messages?id=eq." + id, {
-          method: "DELETE",
-          headers: { Prefer: "return=minimal" },
-        });
-        tousMessages = tousMessages.filter((m) => m.id !== id);
-        mettreAJourStats();
-        afficherMessages(filtreCourant);
+        try {
+          await supabaseFetch("messages?id=eq." + id, {
+            method: "DELETE",
+          });
+          tousMessages = tousMessages.filter((m) => m.id !== id);
+          mettreAJourStats();
+          afficherMessages(filtreCourant);
+        } catch (err) {
+          logError("supprimer", err);
+          alert("Erreur lors de la suppression");
+        }
       }
 
       function esc(str) {
@@ -610,7 +701,9 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;");
       }
+
       function fmtDate(str) {
+        if (!str) return "—";
         const d = new Date(str);
         return (
           d.toLocaleDateString("fr-FR") +
