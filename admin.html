@@ -8,7 +8,6 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Montserrat:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
-    <!-- SDK Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       :root {
@@ -32,8 +31,6 @@
         color: var(--white);
         min-height: 100vh;
       }
-
-      /* LOGIN */
       #login-screen {
         min-height: 100vh;
         display: flex;
@@ -116,8 +113,6 @@
         text-align: center;
         display: none;
       }
-
-      /* DASHBOARD */
       #dashboard-screen {
         display: none;
       }
@@ -409,7 +404,6 @@
         <p class="page-subtitle">
           Tous les messages reçus via le formulaire de contact
         </p>
-
         <div class="stats-grid">
           <div class="stat-card">
             <div class="number" id="stat-total">—</div>
@@ -424,7 +418,6 @@
             <div class="label">Lus</div>
           </div>
         </div>
-
         <div class="filtres">
           <button class="filtre-btn active" onclick="filtrer('tous', this)">
             Tous
@@ -434,7 +427,6 @@
           </button>
           <button class="filtre-btn" onclick="filtrer('lus', this)">Lus</button>
         </div>
-
         <div id="messages-container">
           <div class="loading">Chargement...</div>
         </div>
@@ -442,21 +434,19 @@
     </div>
 
     <script>
-      // ============================================
-      // CONFIGURATION SUPABASE
-      // ============================================
+      // ── CONFIG ── remplace par tes vraies valeurs
       const SUPABASE_URL = "https://gxrbnwnrkzgbxzrtdakb.supabase.co";
       const SUPABASE_KEY = "sb_publishable_fEuUhamvjACsN9lSew6N5g_8NIsDMtr";
       const ADMIN_USER = "admin";
       const ADMIN_PASS = "admin123";
 
-      // Initialisation du client Supabase
-      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      // ✅ CORRECTION : on extrait createClient depuis l'objet global supabase
+      const { createClient } = supabase;
+      const client = createClient(SUPABASE_URL, SUPABASE_KEY);
 
       let filtreCourant = "tous";
       let tousMessages = [];
 
-      // Connexion
       function seConnecter() {
         const user = document.getElementById("login-user").value;
         const pass = document.getElementById("login-pass").value;
@@ -466,10 +456,9 @@
           document.getElementById("dashboard-screen").style.display = "block";
           chargerMessages();
         } else {
-          document.getElementById("login-erreur").style.display = "block";
-          setTimeout(() => {
-            document.getElementById("login-erreur").style.display = "none";
-          }, 3000);
+          const err = document.getElementById("login-erreur");
+          err.style.display = "block";
+          setTimeout(() => (err.style.display = "none"), 3000);
         }
       }
 
@@ -486,47 +475,39 @@
         document.getElementById("dashboard-screen").style.display = "none";
       }
 
-      // Session persistante
       if (sessionStorage.getItem("admin")) {
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("dashboard-screen").style.display = "block";
         chargerMessages();
       }
 
-      // ============================================
-      // REQUÊTES SUPABASE AVEC SDK (PAS DE CORS)
-      // ============================================
+      // ✅ CORRECTION : toutes les requêtes utilisent "client" au lieu de "supabase"
       async function chargerMessages() {
         document.getElementById("messages-container").innerHTML =
           '<div class="loading">Chargement...</div>';
-
         try {
-          const { data, error } = await supabase
+          const { data, error } = await client
             .from("messages")
             .select("*")
             .order("date_envoi", { ascending: false });
-
           if (error) throw error;
-
           tousMessages = data || [];
           mettreAJourStats();
           afficherMessages(filtreCourant);
         } catch (err) {
           console.error("Erreur:", err);
           document.getElementById("messages-container").innerHTML =
-            '<div class="empty" style="color: #ff6b6b;">❌ Erreur de chargement des messages</div>';
+            '<div class="empty" style="color:#ff6b6b">Erreur de chargement. Vérifie la console.</div>';
         }
       }
 
       async function marquerLu(id) {
         try {
-          const { error } = await supabase
+          const { error } = await client
             .from("messages")
             .update({ lu: true })
             .eq("id", id);
-
           if (error) throw error;
-
           const msg = tousMessages.find((m) => m.id === id);
           if (msg) msg.lu = true;
           mettreAJourStats();
@@ -539,15 +520,9 @@
 
       async function supprimer(id) {
         if (!confirm("Supprimer ce message définitivement ?")) return;
-
         try {
-          const { error } = await supabase
-            .from("messages")
-            .delete()
-            .eq("id", id);
-
+          const { error } = await client.from("messages").delete().eq("id", id);
           if (error) throw error;
-
           tousMessages = tousMessages.filter((m) => m.id !== id);
           mettreAJourStats();
           afficherMessages(filtreCourant);
@@ -563,7 +538,6 @@
         document.getElementById("stat-total").textContent = total;
         document.getElementById("stat-non-lus").textContent = nonLus;
         document.getElementById("stat-lus").textContent = total - nonLus;
-
         const badge = document.getElementById("badge-non-lus");
         if (nonLus > 0) {
           badge.textContent = nonLus;
@@ -586,42 +560,36 @@
         let msgs = tousMessages;
         if (type === "non_lus") msgs = tousMessages.filter((m) => !m.lu);
         if (type === "lus") msgs = tousMessages.filter((m) => m.lu);
-
         const container = document.getElementById("messages-container");
         if (msgs.length === 0) {
           container.innerHTML =
             '<div class="empty">Aucun message pour le moment.</div>';
           return;
         }
-
         container.innerHTML = `
           <div class="table-wrapper">
             <table class="messages-table">
-              <thead>
-                <tr><th>Nom</th><th>Email</th><th>Service</th><th>Message</th><th>Date</th><th>Actions</th></tr>
-              </thead>
+              <thead><tr><th>Nom</th><th>Email</th><th>Service</th><th>Message</th><th>Date</th><th>Actions</th></tr></thead>
               <tbody>
                 ${msgs
                   .map(
                     (m) => `
-                  <tr class="${!m.lu ? "non-lu" : ""}">
-                    <td>${!m.lu ? '<span class="badge-non-lu"></span>' : ""}${esc(m.nom)}</td>
-                    <td><a href="mailto:${esc(m.email)}" style="color:var(--accent);text-decoration:none">${esc(m.email)}</a></td>
-                    <td>${m.service ? `<span class="badge-service">${esc(m.service)}</span>` : '<span style="color:var(--gray)">—</span>'}</td>
-                    <td class="msg-text">${esc(m.message).replace(/\n/g, "<br>")}</td>
-                    <td class="date">${fmtDate(m.date_envoi)}</td>
-                    <td><div class="actions">
-                      ${!m.lu ? `<button class="btn-action" onclick="marquerLu(${m.id})">Lu</button>` : ""}
-                      <button class="btn-action danger" onclick="supprimer(${m.id})">Supprimer</button>
-                    </div></td>
-                  </tr>
-                `,
+                <tr class="${!m.lu ? "non-lu" : ""}">
+                  <td>${!m.lu ? '<span class="badge-non-lu"></span>' : ""}${esc(m.nom)}</td>
+                  <td><a href="mailto:${esc(m.email)}" style="color:var(--accent);text-decoration:none">${esc(m.email)}</a></td>
+                  <td>${m.service ? `<span class="badge-service">${esc(m.service)}</span>` : '<span style="color:var(--gray)">—</span>'}</td>
+                  <td class="msg-text">${esc(m.message).replace(/\n/g, "<br>")}</td>
+                  <td class="date">${fmtDate(m.date_envoi)}</td>
+                  <td><div class="actions">
+                    ${!m.lu ? `<button class="btn-action" onclick="marquerLu(${m.id})">Lu</button>` : ""}
+                    <button class="btn-action danger" onclick="supprimer(${m.id})">Supprimer</button>
+                  </div></td>
+                </tr>`,
                   )
                   .join("")}
               </tbody>
             </table>
-          </div>
-        `;
+          </div>`;
       }
 
       function esc(str) {
@@ -630,7 +598,6 @@
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;");
       }
-
       function fmtDate(str) {
         if (!str) return "—";
         const d = new Date(str);
