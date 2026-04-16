@@ -8,6 +8,8 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Montserrat:wght@300;400;600&display=swap"
       rel="stylesheet"
     />
+    <!-- SDK Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
       :root {
         --bg: #0d0d0d;
@@ -148,20 +150,15 @@
       .nav-item {
         display: block;
         padding: 12px 15px;
-        color: var(--gray);
         font-size: 12px;
         letter-spacing: 1px;
         text-transform: uppercase;
         border-radius: 4px;
-        transition: all 0.2s;
-        border: none;
         background: rgba(255, 255, 255, 0.05);
         color: var(--white);
         width: 100%;
-        text-align: left;
         font-family: "Montserrat", sans-serif;
         margin-bottom: 5px;
-        cursor: default;
       }
       .nav-item .badge {
         display: inline-block;
@@ -180,7 +177,6 @@
         letter-spacing: 1px;
         text-transform: uppercase;
         border-radius: 4px;
-        transition: all 0.2s;
         cursor: pointer;
         border: none;
         background: none;
@@ -207,8 +203,6 @@
         color: var(--gray);
         margin-bottom: 40px;
       }
-
-      /* Stats */
       .stats-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -234,8 +228,6 @@
         letter-spacing: 2px;
         margin-top: 8px;
       }
-
-      /* Filtres */
       .filtres {
         display: flex;
         gap: 10px;
@@ -259,8 +251,6 @@
         border-color: var(--accent);
         color: var(--accent);
       }
-
-      /* Table */
       .table-wrapper {
         overflow-x: auto;
       }
@@ -355,7 +345,6 @@
         font-size: 13px;
         letter-spacing: 2px;
       }
-
       @media (max-width: 900px) {
         .sidebar {
           display: none;
@@ -461,13 +450,11 @@
       const ADMIN_USER = "admin";
       const ADMIN_PASS = "admin123";
 
+      // Initialisation du client Supabase
+      const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
       let filtreCourant = "tous";
       let tousMessages = [];
-
-      // Fonction pour afficher les erreurs dans la console
-      function logError(context, error) {
-        console.error(`[${context}]`, error);
-      }
 
       // Connexion
       function seConnecter() {
@@ -507,100 +494,82 @@
       }
 
       // ============================================
-      // REQUÊTES SUPABASE (VERSION CORRIGÉE POUR CORS)
+      // REQUÊTES SUPABASE AVEC SDK (PAS DE CORS)
       // ============================================
-      async function supabaseFetch(path, options = {}) {
-        const url = SUPABASE_URL + "/rest/v1/" + path;
-
-        const fetchOptions = {
-          method: options.method || "GET",
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: "Bearer " + SUPABASE_KEY,
-            "Content-Type": "application/json",
-          },
-        };
-
-        if (options.body) {
-          fetchOptions.body = JSON.stringify(options.body);
-        }
-
-        if (options.method === "PATCH" || options.method === "DELETE") {
-          fetchOptions.headers["Prefer"] = "return=minimal";
-        }
-
-        try {
-          const response = await fetch(url, fetchOptions);
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            logError(`HTTP ${response.status}`, errorText);
-            throw new Error(`Erreur ${response.status}: ${errorText}`);
-          }
-
-          if (options.method === "DELETE") return { success: true };
-          if (options.method === "PATCH") return { success: true };
-
-          const data = await response.json();
-          return data;
-        } catch (err) {
-          logError("Fetch error", err);
-
-          // Afficher une erreur visible dans l'interface
-          const container = document.getElementById("messages-container");
-          if (container && err.message.includes("Failed to fetch")) {
-            container.innerHTML = `<div class="empty" style="color: #ff6b6b;">
-              ⚠️ Erreur de connexion à Supabase.<br>
-              Vérifiez que les CORS sont configurés dans Supabase :<br>
-              Settings → API → Allowed Origins → Ajoutez : ${window.location.origin}
-            </div>`;
-          }
-          return [];
-        }
-      }
-
       async function chargerMessages() {
-        const container = document.getElementById("messages-container");
-        if (container) {
-          container.innerHTML =
-            '<div class="loading">Chargement des messages...</div>';
-        }
+        document.getElementById("messages-container").innerHTML =
+          '<div class="loading">Chargement...</div>';
 
         try {
-          const data = await supabaseFetch("messages?order=date_envoi.desc");
-          tousMessages = Array.isArray(data) ? data : [];
+          const { data, error } = await supabase
+            .from("messages")
+            .select("*")
+            .order("date_envoi", { ascending: false });
+
+          if (error) throw error;
+
+          tousMessages = data || [];
           mettreAJourStats();
           afficherMessages(filtreCourant);
         } catch (err) {
-          logError("chargerMessages", err);
-          if (container) {
-            container.innerHTML = `<div class="empty" style="color: #ff6b6b;">
-              ❌ Impossible de charger les messages.<br>
-              Vérifiez votre connexion ou réessayez plus tard.
-            </div>`;
-          }
+          console.error("Erreur:", err);
+          document.getElementById("messages-container").innerHTML =
+            '<div class="empty" style="color: #ff6b6b;">❌ Erreur de chargement des messages</div>';
+        }
+      }
+
+      async function marquerLu(id) {
+        try {
+          const { error } = await supabase
+            .from("messages")
+            .update({ lu: true })
+            .eq("id", id);
+
+          if (error) throw error;
+
+          const msg = tousMessages.find((m) => m.id === id);
+          if (msg) msg.lu = true;
+          mettreAJourStats();
+          afficherMessages(filtreCourant);
+        } catch (err) {
+          console.error("Erreur:", err);
+          alert("Erreur lors du marquage");
+        }
+      }
+
+      async function supprimer(id) {
+        if (!confirm("Supprimer ce message définitivement ?")) return;
+
+        try {
+          const { error } = await supabase
+            .from("messages")
+            .delete()
+            .eq("id", id);
+
+          if (error) throw error;
+
+          tousMessages = tousMessages.filter((m) => m.id !== id);
+          mettreAJourStats();
+          afficherMessages(filtreCourant);
+        } catch (err) {
+          console.error("Erreur:", err);
+          alert("Erreur lors de la suppression");
         }
       }
 
       function mettreAJourStats() {
         const total = tousMessages.length;
         const nonLus = tousMessages.filter((m) => !m.lu).length;
-        const statTotal = document.getElementById("stat-total");
-        const statNonLus = document.getElementById("stat-non-lus");
-        const statLus = document.getElementById("stat-lus");
+        document.getElementById("stat-total").textContent = total;
+        document.getElementById("stat-non-lus").textContent = nonLus;
+        document.getElementById("stat-lus").textContent = total - nonLus;
+
         const badge = document.getElementById("badge-non-lus");
-
-        if (statTotal) statTotal.textContent = total;
-        if (statNonLus) statNonLus.textContent = nonLus;
-        if (statLus) statLus.textContent = total - nonLus;
-
-        if (badge) {
-          if (nonLus > 0) {
-            badge.textContent = nonLus;
-            badge.style.display = "inline-block";
-          } else {
-            badge.style.display = "none";
-          }
+        if (nonLus > 0) {
+          badge.textContent = nonLus;
+          badge.style.display = "inline-block";
+        } else {
+          badge.style.display = "none";
         }
       }
 
@@ -609,7 +578,7 @@
         document
           .querySelectorAll(".filtre-btn")
           .forEach((b) => b.classList.remove("active"));
-        if (btn) btn.classList.add("active");
+        btn.classList.add("active");
         afficherMessages(type);
       }
 
@@ -619,8 +588,6 @@
         if (type === "lus") msgs = tousMessages.filter((m) => m.lu);
 
         const container = document.getElementById("messages-container");
-        if (!container) return;
-
         if (msgs.length === 0) {
           container.innerHTML =
             '<div class="empty">Aucun message pour le moment.</div>';
@@ -631,20 +598,13 @@
           <div class="table-wrapper">
             <table class="messages-table">
               <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Email</th>
-                  <th>Service</th>
-                  <th>Message</th>
-                  <th>Date</th>
-                  <th>Actions</th>
-                </tr>
+                <tr><th>Nom</th><th>Email</th><th>Service</th><th>Message</th><th>Date</th><th>Actions</th></tr>
               </thead>
               <tbody>
                 ${msgs
                   .map(
                     (m) => `
-                  <tr id="row-${m.id}" class="${!m.lu ? "non-lu" : ""}">
+                  <tr class="${!m.lu ? "non-lu" : ""}">
                     <td>${!m.lu ? '<span class="badge-non-lu"></span>' : ""}${esc(m.nom)}</td>
                     <td><a href="mailto:${esc(m.email)}" style="color:var(--accent);text-decoration:none">${esc(m.email)}</a></td>
                     <td>${m.service ? `<span class="badge-service">${esc(m.service)}</span>` : '<span style="color:var(--gray)">—</span>'}</td>
@@ -662,37 +622,6 @@
             </table>
           </div>
         `;
-      }
-
-      async function marquerLu(id) {
-        try {
-          await supabaseFetch("messages?id=eq." + id, {
-            method: "PATCH",
-            body: JSON.stringify({ lu: true }),
-          });
-          const msg = tousMessages.find((m) => m.id === id);
-          if (msg) msg.lu = true;
-          mettreAJourStats();
-          afficherMessages(filtreCourant);
-        } catch (err) {
-          logError("marquerLu", err);
-          alert("Erreur lors du marquage du message");
-        }
-      }
-
-      async function supprimer(id) {
-        if (!confirm("Supprimer ce message définitivement ?")) return;
-        try {
-          await supabaseFetch("messages?id=eq." + id, {
-            method: "DELETE",
-          });
-          tousMessages = tousMessages.filter((m) => m.id !== id);
-          mettreAJourStats();
-          afficherMessages(filtreCourant);
-        } catch (err) {
-          logError("supprimer", err);
-          alert("Erreur lors de la suppression");
-        }
       }
 
       function esc(str) {
