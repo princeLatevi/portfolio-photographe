@@ -338,12 +338,34 @@
       }
       .contact-item:hover { color: var(--color-accent); }
       .contact-icon { font-size: 18px; flex-shrink: 0; }
-      .social-links { display: flex; gap: 25px; margin-top: 35px; }
-      .social-link {
-        font-size: 22px; color: var(--color-gray);
-        transition: all 0.3s ease; text-decoration: none;
-      }
-      .social-link:hover { color: var(--color-accent); transform: translateY(-3px); }
+      .social-links {
+         display: flex; 
+         gap: 25px; 
+         margin-top: 35px; 
+         ;
+        }
+     .social-link {
+    font-size: 22px;
+    color: var(--color-gray);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    background: var(--color-dark-gray);
+    border: 2px solid rgba(255, 255, 255, 0.1);  /* Bordure plus fine */
+    border-radius: 50%;                          /* Forme circulaire (optionnel) */
+    display: inline-flex;                        /* Pour bien centrer l'icône */
+    align-items: center;
+    justify-content: center;
+    width: 35px;                                 /* Largeur fixe (optionnel) */
+    height: 35px;                                /* Hauteur fixe (optionnel) */
+    transition: all 0.3s ease;                   /* Transition fluide */
+}
+
+.social-link:hover { 
+    color: var(--color-accent);
+    background: var(--color-gray);               /* Inverse les couleurs au survol */
+    border-color: rgba(255, 255, 255, 0.3);      /* Bordure plus visible au survol */
+    transform: translateY(-5px);                 /* Légèrement plus de mouvement */
+}
  
       /* Form */
       .contact-form { display: flex; flex-direction: column; gap: 18px; }
