@@ -1,0 +1,2 @@
+Déposez ici une photo de trophée/diplôme si vous en avez une pour un prix
+de concours. Voir le README.md, bloc AWARDS_DATA dans script.js.

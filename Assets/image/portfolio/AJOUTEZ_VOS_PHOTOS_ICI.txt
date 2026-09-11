@@ -1,0 +1,3 @@
+Déposez ici vos photos de galerie (mariages, portraits, corporate...).
+Voir le README.md à la racine du projet pour savoir comment les relier
+aux galeries du site (fichier script.js, bloc PROJECTS_DATA).
