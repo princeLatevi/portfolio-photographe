@@ -218,7 +218,7 @@ fadeEls.forEach((el) => fadeObserver.observe(el));
   el.textContent = "";
   const chars = text.split("").map((ch) => {
     const span = document.createElement("span");
-    span.textContent = ch === " " ? "\u00A0" : ch;
+    span.textContent = ch;
     span.style.opacity = "0.2";
     el.appendChild(span);
     return span;
