@@ -18,6 +18,7 @@
   </head>
   <body>
     <div class="grain"></div>
+    <div id="cursorDot" aria-hidden="true"></div>
 
     <!-- ============ NAVBAR ============ -->
     <header id="navbar">
@@ -41,40 +42,60 @@
     </div>
 
     <!-- ============ HERO ============ -->
-    <section class="hero" id="accueil">
-      <div class="hero-top">
-        <div class="hero-heading-wrap fade-in" data-fade data-delay="150">
-          <h1 class="hero-heading">Antoni Latevi</h1>
-        </div>
+    <div class="hero-scroll" id="heroScroll">
+      <section class="hero" id="accueil">
+        <div class="hero-veil" id="heroVeil" aria-hidden="true"></div>
 
-        <div class="hero-portrait-wrap fade-in" data-fade data-delay="300" data-y="30">
-          <div class="magnet" id="heroMagnet">
-            <img
-              src="./Assets/image/Antoine.jpeg"
-              alt="Antoni Latevi, photographe"
-              class="hero-portrait"
-            />
+        <div class="hero-top">
+          <div class="hero-heading-wrap fade-in" data-fade data-delay="150">
+            <h1 class="hero-heading">Antoni Latevi</h1>
+          </div>
+
+          <div class="hero-portrait-wrap fade-in" data-fade data-delay="300" data-y="30">
+            <div class="zoom-target" id="zoomTarget">
+              <div class="magnet" id="heroMagnet">
+                <img
+                  src="./Assets/image/Antoine.jpeg"
+                  alt="Antoni Latevi, photographe"
+                  class="hero-portrait"
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="hero-bottom">
-        <p class="hero-tagline fade-in" data-fade data-delay="450" data-y="20">
-          Photographe basé à Abidjan — je capture des instants qui ne se
-          reproduiront jamais deux fois.
-        </p>
-        <a href="#contact" class="btn-gradient fade-in" data-fade data-delay="550" data-y="20">
-          Me contacter
-        </a>
-      </div>
+        <div class="hero-bottom">
+          <p class="hero-tagline fade-in" data-fade data-delay="450" data-y="20">
+            Photographe basé à Abidjan — je capture des instants qui ne se
+            reproduiront jamais deux fois.
+          </p>
+          <a href="#contact" class="btn-gradient fade-in" data-fade data-delay="550" data-y="20">
+            Me contacter
+          </a>
+        </div>
 
-      <div class="scroll-cue">Défiler</div>
-    </section>
+        <div class="scroll-cue">Défiler</div>
+      </section>
+    </div>
 
     <!-- ============ MARQUEE ============ -->
     <section class="marquee-section" aria-hidden="true">
       <div class="marquee-row" id="marqueeRow1"></div>
       <div class="marquee-row" id="marqueeRow2"></div>
+    </section>
+
+
+    <!-- ============ SPHÈRE INTERACTIVE ============ -->
+    <section class="sphere-section" id="apercu">
+      <h2 class="sphere-heading fade-in" data-fade data-delay="0">Un aperçu, d'un geste</h2>
+      <p class="sphere-sub fade-in" data-fade data-delay="80" data-y="20">
+        Faites glisser pour parcourir un échantillon des dernières séances,
+        toutes catégories confondues. Cliquez sur une photo pour l'agrandir.
+      </p>
+      <div class="sphere-stage" id="sphereStage">
+        <div class="sphere-world" id="sphereWorld"></div>
+      </div>
+      <p class="sphere-cue">Glisser pour faire pivoter</p>
     </section>
 
     <!-- ============ ABOUT ============ -->
@@ -242,6 +263,16 @@
       <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" aria-label="Précédent">&#8249;</button>
       <img class="lightbox-img" id="lightboxImg" src="" alt="" />
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" aria-label="Suivant">&#8250;</button>
+      <div class="lightbox-caption">
+        <p class="cat" id="lightboxCat"></p>
+        <p class="title" id="lightboxTitle"></p>
+        <div class="lightbox-toolbar">
+          <button type="button" id="lightboxShare">Partager</button>
+          <a href="https://wa.me/2250747979585" target="_blank" rel="noopener" id="lightboxInquire" class="lightbox-inquire">
+            En discuter sur WhatsApp
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- ============ CONTACT ============ -->
